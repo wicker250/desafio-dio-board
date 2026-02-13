@@ -6,6 +6,8 @@ import br.com.dio.persistence.entity.BoardEntity;
 import br.com.dio.service.BoardQueryService;
 import br.com.dio.service.BoardService;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +30,33 @@ public class MainMenu {
             System.out.println("1 - Criar um novo board");
             System.out.println("2 - Selecionar um board existente");
             System.out.println("3 - Excluir um board");
-            System.out.println("4 - Sair");
+            System.out.println("4 - Listar boards");
+            System.out.println("5 - Sair");
             option = scanner.nextInt();
             switch (option){
                 case 1 -> createBoard();
                 case 2 -> selectBoard();
                 case 3 -> deleteBoard();
-                case 4 -> System.exit(0);
+                case 4 -> listBoards();
+                case 5 -> System.exit(0);
                 default -> System.out.println("Opção inválida, informe uma opção do menu");
             }
+        }
+    }
+
+    private void listBoards() throws SQLException {
+        final String sql = "SELECT id, name FROM BOARDS ORDER BY id";
+        try (var connection = getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            System.out.println("\nBoards:");
+            while (rs.next()) {
+                var id = rs.getLong("id");
+                var name = rs.getString("name");
+                System.out.printf("%d - %s%n", id, name);
+            }
+            System.out.println();
         }
     }
 
